@@ -1,3 +1,4 @@
+const { reset, sendPhoto } = require('../utils')
 const { SubscriptionListModel } = require('../models')
 
 module.exports = function(bot) {
@@ -10,10 +11,26 @@ module.exports = function(bot) {
                 type
             })
             await newsubScriptionList.save();
-            bot.sendMessage(id, 'Subscribe Successful');
+            await bot.sendMessage(id, 'Subscribe Successful');
         } catch(err){
             console.log(err)
-            bot.sendMessage(id, 'Subscribe Fail');
+            await bot.sendMessage(id, 'Subscribe Fail');
+        }
+    });
+    bot.onText(/\/reset/, async (msg) => {
+        const { id } = msg.chat
+        try {
+            await reset(bot)
+            await bot.sendMessage(id, 'Image Reset Complete');
+        } catch (err){
+            await bot.sendMessage(id, 'Image Reset Fail');
+        }
+    });
+    bot.onText(/\/sendPhoto/, async () => {
+        try {
+            await sendPhoto(bot)
+        } catch (err){
+            await bot.sendMessage(id, 'Sent Photo Fail');
         }
     });
 };
