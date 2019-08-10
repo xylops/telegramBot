@@ -5,7 +5,7 @@ module.exports = function(bot) {
         const { id, first_name, type } = msg.chat
         try {
             let newsubScriptionList = new SubscriptionListModel({
-                targetId: id,
+                subscriberId: id,
                 name: first_name,
                 type
             })
@@ -16,5 +16,4 @@ module.exports = function(bot) {
             bot.sendMessage(id, 'Subscribe Fail');
         }
     });
-    bot.on("polling_error", (err) => console.log(err));
 };

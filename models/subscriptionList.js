@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var subscriptionList = new Schema({
-    targetId: { type: String, unique: true, require: true },
+    subscriberId: { type: String, unique: true, require: true },
     name: { type: String, require: true },
     type: { type: String, require }
 }, { collection: 'subscriptionList' });
