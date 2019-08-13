@@ -6,7 +6,7 @@
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node index.js",
-		// "build": "babel --presets es2015 -d lib/ src"
+		"dev": "nodemon index.js --exec babel-node"
 	},
 	"engines": {
 		"node": "10.3.0"
