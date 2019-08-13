@@ -1,4 +1,4 @@
-const SubscriptionList = require('./SubscriptionList')
+const SubscriptionList = require('./subscriptionList')
 const Image = require('./image')
 
 module.exports =  {
