@@ -9,8 +9,11 @@ mongoose.connect(
     { useNewUrlParser: true },
     ()=>{ 
         console.log('Connected to Mongodb Tranquility' ) 
+        var port = process.env.PORT || 3000;
+        var host = process.env.HOST;
         const token = process.env.TelegramToken;
-        const bot = new TelegramBot(token, {polling: true});
+        var bot = new TelegramBot(token, {webHook: {port: port, host: host, polling: true}});
+        // const bot = new TelegramBot(token, {polling: true});
         require('./controller')(bot)
 
         // let cronExp = '0 10 * * 1-5'  //weekday 10:00 am
