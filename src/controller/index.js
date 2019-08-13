@@ -1,5 +1,5 @@
-module.exports = function(bot) {
-    require('./common')(bot)
-    require('./command')(bot)
-    require('./image')(bot)
-};
+const pageController = require('./pageController')
+
+module.exports = function(app){
+    app.use('/', pageController)
+}
