@@ -11,7 +11,7 @@ module.exports = function(bot) {
                 type
             })
             await newsubScriptionList.save();
-            await bot.sendMessage(id, 'Subscribe Successful');
+            await bot.sendMessage(id, '全公司最大的J圖機械人, 上線啦!!!');
         } catch(err){
             console.log(err)
             await bot.sendMessage(id, 'Subscribe Fail');

@@ -14,10 +14,12 @@ mongoose.connect(
         require('./controller')(bot)
 
         // let cronExp = '0 10 * * 1-5'  //weekday 10:00 am
-        let cronExp = '1 * * * * *'   //every min
-        new CronJob(cronExp, function() {
-            sendPhoto(bot)
-        }, null, true, 'Asia/Hong_Kong');
+        let cronExp = process.env.cronExp
+        if( cronExp ){
+            new CronJob(cronExp, () => {
+                sendPhoto(bot)
+            }, null, true, 'Asia/Hong_Kong');
+        }
     }
 );
 mongoose.set('useCreateIndex', true);
