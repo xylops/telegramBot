@@ -5,8 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "npx babel-node index.js",
-		"dev": "nodemon index.js --exec babel-node"
+		"start": "npx babel-node dist/index.js",
+		"dev": "nodemon src/index.js --exec babel-node",
+		"build": "babel --presets es2015 -d dist/ src"
 	},
 	"engines": {
 		"node": "10.3.0"
