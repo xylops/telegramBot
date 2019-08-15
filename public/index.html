@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <title>Tranquility</title>
+</head>
+<body>
+    <div class="container">
+        <br/>
+        <form action="/upload"  enctype="multipart/form-data" method="POST" id="uploadForm">
+            <div class="input-group">
+                <input 
+                    type="file" 
+                    name="images" 
+                    multiple
+                    accept="image/jpeg, image/png"
+                    class="form-control"
+                    id="uploadField"
+                >
+                <div class="input-group-btn">
+                    <input type="submit" value="Upload your files" class="btn btn-primary"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+<script>
+    $('#uploadField').change(function(){
+        var inp = document.getElementById('uploadField');
+        for (var i = 0; i < inp.files.length; ++i) {
+            var name = inp.files.item(i).name;
+            console.log("here is a file name: " + name);
+        }
+    })
+</script>
+</html>
