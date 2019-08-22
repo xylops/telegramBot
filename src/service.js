@@ -1,4 +1,4 @@
-const TelegramBot = require('node-telegram-bot-api');
+const Telegraf = require('telegraf')
 const mongoose = require('mongoose')
 const CronJob = require('cron').CronJob;
 const { sendPhoto } = require('./utils')
@@ -18,8 +18,9 @@ let connectMongoose = () => {
 
 let startBot = () => {
     const token = process.env.TelegramToken;
-    let bot = new TelegramBot(token, {polling: true});
+    const bot = new Telegraf(token)
     require('./listener')(bot)
+    bot.launch()
     startCronJob(bot)
 }
 
@@ -28,7 +29,7 @@ let startCronJob = (bot) => {
     let cronExp = process.env.cronExp
     if( !cronExp ){ return }
     new CronJob(cronExp, () => {
-        sendPhoto(bot)
+        // sendPhoto(bot)
     }, null, true, 'Asia/Hong_Kong');
 }
 

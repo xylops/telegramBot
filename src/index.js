@@ -15,7 +15,7 @@ app.use(express.static('../public'));
 //         next();
 //     }
 // })
-require('./controller')(app)
-app.listen(PORT, () => {
-    console.log('Express server is up on port ' + PORT )
-}); 
+// require('./controller')(app)
+// app.listen(PORT, () => {
+//     console.log('Express server is up on port ' + PORT )
+// }); 
