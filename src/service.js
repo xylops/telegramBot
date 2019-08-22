@@ -13,6 +13,7 @@ let connectMongoose = () => {
         }
     );
     mongoose.set('useCreateIndex', true);
+    mongoose.set('useFindAndModify', false)
 }
 
 let startBot = () => {
