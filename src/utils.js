@@ -1,7 +1,7 @@
 const { SubscriptionListModel, ImageModel } = require('./models')
 
 module.exports = {
-    sendPhoto: (bot) => {
+    sendPhoto: (replyWithPhoto, reply) => {
         return new Promise (async(resolve, reject)=>{
             let sublist = await SubscriptionListModel.find()
             try {
@@ -10,8 +10,12 @@ module.exports = {
                     let singleImage = await ImageModel.findOne({ sendedTo: { "$ne": _id } }).sort({ createAt: 1 })
                     if (!singleImage) { continue; }
                     await ImageModel.findByIdAndUpdate(singleImage._id, { $push: { sendedTo: _id } })
-                    await bot.sendMessage(subscriberId, 'Daily Photo')
-                    await bot.sendPhoto(subscriberId, singleImage.fileId)
+                    await replyWithPhoto( 
+                            singleImage.fileId , 
+                            {
+                                caption: 'Daily Photo from ' + singleImage.sender
+                            }
+                        )
                     resolve()
                 }
             } catch(err){

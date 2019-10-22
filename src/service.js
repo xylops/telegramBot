@@ -20,6 +20,9 @@ let startBot = () => {
     const token = process.env.TelegramToken;
     const bot = new Telegraf(token)
     require('./listener')(bot)
+    bot.catch((err) => {
+        console.log('Ooops', err)
+    })
     bot.launch()
     startCronJob(bot)
 }
