@@ -1,10 +1,18 @@
-const { reset, sendPhoto } = require('../utils')
+const { reset, pickOneMedia, sendMedia } = require('../utils')
 const { SubscriptionListModel } = require('../models')
 const fs = require('fs')
 
+let roleCheck = (ctx, next) => {
+    if(ctx.message.chat.first_name !== process.env.rootAdmin) { 
+        ctx.reply('Permission Decline')
+        return;
+    } else {
+        next()
+    }
+}
 
 module.exports = function(bot) {
-    bot.command('subscribe', async ({reply}) => {
+    bot.command('subscribe',  async ({reply}) => {
         let { id , first_name, type } = ctx.message.chat
         try {
             let newsubScriptionList = new SubscriptionListModel({
@@ -19,11 +27,7 @@ module.exports = function(bot) {
             reply('Subscribe Fail')
         }
     })
-
-    bot.command('test', (ctx) => {
-        console.log(ctx)
-    })
-    bot.command('reset', async ({reply}) => {
+    bot.command('reset', roleCheck, async ({reply}) => {
         try {
             await reset()
             reply('Image Reset Complete');
@@ -31,12 +35,12 @@ module.exports = function(bot) {
             reply('Image Reset Fail');
         }
     });
-    bot.command('sendPhoto', async ({replyWithPhoto, reply}) => {
+    bot.command('sendMedia', roleCheck, async (ctx) => {
         try {
-            await sendPhoto(replyWithPhoto, reply)
+            await sendMedia(bot, ctx.message.chat.id)
         } catch (err){
             console.log(err)
-            await reply('Sent Photo Fail');
+            await ctx.reply('Sent Photo Fail');
         }
     });
 };

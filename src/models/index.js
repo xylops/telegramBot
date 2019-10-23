@@ -1,7 +1,7 @@
 const SubscriptionList = require('./subscriptionList')
-const Image = require('./image')
+const media = require('./media')
 
 module.exports =  {
     SubscriptionListModel: SubscriptionList,
-    ImageModel: Image
+    MediaModel: media
 }

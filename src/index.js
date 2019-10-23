@@ -1,13 +1,14 @@
 require('dotenv').config()
-const express = require('express');
-const app = express();
+// const express = require('express');
+// const app = express();
 
 let service = require('./service')
-const PORT = parseInt(process.env.PORT) || 3000
+// const PORT = parseInt(process.env.PORT) || 3000
 
 service.connectMongoose();
 
-app.use(express.static('../public')); 
+// app.use(express.static('../public')); 
+
 // app.use((req, res, next) => {
 //     if(req.headers['x-forwarded-proto'] === 'https'){
 //       res.redirect('http://' + req.hostname + req.url);

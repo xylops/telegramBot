@@ -1,36 +1,67 @@
-const { SubscriptionListModel, ImageModel } = require('./models')
+const { isEmpty } = require('lodash')
+const { SubscriptionListModel, MediaModel } = require('./models')
+
+
+let sendMedia = (bot, targetId, caption) => {
+    return new Promise(async (resolve, reject) => {
+
+        try {
+            let subscriberInfo = await SubscriptionListModel.findOne({ subscriberId: targetId })
+            if (isEmpty(subscriberInfo)) { reject('Not Subscribe'); return; }
+
+            let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id } })
+            if (isEmpty(availableMediaList)) { reject('Nothing available'); return; }
+
+            let randomNumber = Math.floor(Math.random() * availableMediaList.length)
+            let selectedMedia = availableMediaList[randomNumber]
+            let { fileId, type, _id } = selectedMedia
+
+            switch (type) {
+                case 'image':
+                    bot.telegram.sendPhoto(targetId, fileId, { caption })
+                    break;
+                case 'video':
+                    bot.telegram.sendVideo(targetId, fileId, { caption })
+                    break;
+                case 'animation':
+                    bot.telegram.sendAnimation(targetId, fileId, { caption })
+                    break;
+            }
+
+            await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
+            resolve()
+
+        } catch (err) {
+            console.log(err)
+            reject(err)
+        }
+    })
+}
+
+let scheduleSendMedia = async (bot) => {
+    let subscriberList = await SubscriptionListModel.find()
+    for(let item of subscriberList){
+        try {
+            await sendMedia(bot, item.subscriberId, 'Daily Photo')
+        } catch (err){
+            console.log(err)
+        }
+    }
+}
+
+let reset = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await MediaModel.updateMany({ sendedTo: [] })
+            resolve()
+        } catch (err) {
+            reject(err)
+        }
+    })
+}
 
 module.exports = {
-    sendPhoto: (replyWithPhoto, reply) => {
-        return new Promise (async(resolve, reject)=>{
-            let sublist = await SubscriptionListModel.find()
-            try {
-                for (let idx in sublist) {
-                    let { subscriberId, _id } = sublist[idx]
-                    let singleImage = await ImageModel.findOne({ sendedTo: { "$ne": _id } }).sort({ createAt: 1 })
-                    if (!singleImage) { continue; }
-                    await ImageModel.findByIdAndUpdate(singleImage._id, { $push: { sendedTo: _id } })
-                    await replyWithPhoto( 
-                            singleImage.fileId , 
-                            {
-                                caption: 'Daily Photo from ' + singleImage.sender
-                            }
-                        )
-                    resolve()
-                }
-            } catch(err){
-                reject(err)
-            }
-        })
-    },
-    reset: () => {
-        return new Promise(async (resolve, reject)=>{
-            try {
-                await ImageModel.updateMany({sendedTo: []})
-                resolve()
-            } catch (err) {
-                reject(err)
-            }
-        })
-    }
+    sendMedia,
+    scheduleSendMedia,
+    reset
 }
