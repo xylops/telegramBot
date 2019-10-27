@@ -1,5 +1,6 @@
 const { isEmpty } = require('lodash')
-const { SubscriptionListModel, MediaModel } = require('./models')
+const { SubscriptionListModel, MediaModel, VotingModel } = require('./models')
+const { Extra } = require('telegraf');
 
 
 let sendMedia = (bot, targetId, caption) => {
@@ -14,19 +15,47 @@ let sendMedia = (bot, targetId, caption) => {
 
             let randomNumber = Math.floor(Math.random() * availableMediaList.length)
             let selectedMedia = availableMediaList[randomNumber]
-            let { fileId, type, _id } = selectedMedia
+            let { fileId, type, sender, _id } = selectedMedia
 
+            const extra = Extra.HTML().markup((m) =>
+                m.inlineKeyboard([
+                    m.callbackButton('1', '1'),
+                    m.callbackButton('2', '2'),
+                    m.callbackButton('3', '3'),
+                    m.callbackButton('4', '4'),
+                    m.callbackButton('5', '5')
+                ])
+            )
+            extra.caption = caption
+
+            let sendedMessageInfo = null
             switch (type) {
                 case 'image':
-                    bot.telegram.sendPhoto(targetId, fileId, { caption })
+                    sendedMessageInfo = await bot.telegram.sendPhoto(targetId, fileId, extra)
                     break;
                 case 'video':
-                    bot.telegram.sendVideo(targetId, fileId, { caption })
+                    sendedMessageInfo = await bot.telegram.sendVideo(targetId, fileId, extra)
                     break;
                 case 'animation':
-                    bot.telegram.sendAnimation(targetId, fileId, { caption })
+                    sendedMessageInfo = await bot.telegram.sendAnimation(targetId, fileId, extra)
                     break;
             }
+
+
+
+            let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
+            if (!isEmpty(currentVote)) {
+                await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 } }, { new: true })
+                // add update telegram display logic
+            }
+            let newVote = new VotingModel({
+                messageId: sendedMessageInfo.message_id, // messageId
+                groupId: subscriberInfo._id,
+                bySender: sender,
+                fileId,
+                status: 1
+            })
+            await newVote.save()
 
             await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
             resolve()
@@ -40,10 +69,10 @@ let sendMedia = (bot, targetId, caption) => {
 
 let scheduleSendMedia = async (bot) => {
     let subscriberList = await SubscriptionListModel.find()
-    for(let item of subscriberList){
+    for (let item of subscriberList) {
         try {
             await sendMedia(bot, item.subscriberId, 'Daily Photo')
-        } catch (err){
+        } catch (err) {
             console.log(err)
         }
     }
@@ -53,6 +82,7 @@ let reset = () => {
     return new Promise(async (resolve, reject) => {
         try {
             await MediaModel.updateMany({ sendedTo: [] })
+            await VotingModel.deleteMany({})
             resolve()
         } catch (err) {
             reject(err)

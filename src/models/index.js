@@ -1,7 +1,5 @@
-const SubscriptionList = require('./subscriptionList')
-const media = require('./media')
-
 module.exports =  {
-    SubscriptionListModel: SubscriptionList,
-    MediaModel: media
+    SubscriptionListModel: require('./subscriptionList'),
+    MediaModel: require('./media'),
+    VotingModel: require('./voting')
 }
