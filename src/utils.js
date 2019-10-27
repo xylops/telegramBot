@@ -47,6 +47,11 @@ let sendMedia = (bot, targetId, caption) => {
             if (!isEmpty(currentVote)) {
                 await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 } }, { new: true })
                 // add update telegram display logic
+                await bot.telegram.editMessageReplyMarkup(targetId, currentVote.messageId)
+                let score = Math.floor(currentVote.score / currentVote.votedGroupMember)
+                let result = isEmpty(score) ? 0 : score
+                let oldCaption = 'Total Score ' +  result
+                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption )
             }
             let newVote = new VotingModel({
                 messageId: sendedMessageInfo.message_id, // messageId
