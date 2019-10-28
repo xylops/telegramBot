@@ -44,6 +44,7 @@ module.exports = function (bot) {
             await ctx.answerCbQuery('Voted, Thanks You')
 
             if (res.votedGroupMember.length === totalGroupChatMember) {
+                await VotingModel.findByIdAndUpdate( currentVoteInfo._id, { status: 0 } )
                 await ctx.editMessageReplyMarkup();
                 await ctx.editMessageCaption('Total Score : ' + Math.floor(res.score / totalGroupChatMember))
             }

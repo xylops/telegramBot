@@ -44,15 +44,17 @@ let sendMedia = (bot, targetId, caption) => {
 
 
             let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
+
             if (!isEmpty(currentVote)) {
+                // stop current vote
                 await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 } }, { new: true })
-                // add update telegram display logic
                 await bot.telegram.editMessageReplyMarkup(targetId, currentVote.messageId)
                 let score = Math.floor(currentVote.score / currentVote.votedGroupMember)
                 let result = isEmpty(score) ? 0 : score
                 let oldCaption = 'Total Score ' +  result
                 await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption )
             }
+
             let newVote = new VotingModel({
                 messageId: sendedMessageInfo.message_id, // messageId
                 groupId: subscriberInfo._id,
@@ -95,8 +97,20 @@ let reset = () => {
     })
 }
 
+let stockCheck = async (chatId) => {
+    let subscriberInfo = await SubscriptionListModel.findOne({ subscriberId: chatId })
+    let list = await MediaModel.find({ sendedTo: { '$ne': subscriberInfo._id } });
+    return list.length
+}
+
+let weeklyReport = async (bot) => {
+    
+}
+
 module.exports = {
     sendMedia,
     scheduleSendMedia,
-    reset
+    reset, 
+    stockCheck,
+    weeklyReport
 }
