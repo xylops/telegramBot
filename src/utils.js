@@ -1,6 +1,8 @@
 const { isEmpty } = require('lodash')
 const { SubscriptionListModel, MediaModel, VotingModel } = require('./models')
 const { Extra } = require('telegraf');
+const dayjs = require('dayjs');
+const {orderBy} = require('lodash')
 
 
 let sendMedia = (bot, targetId, caption) => {
@@ -104,7 +106,17 @@ let stockCheck = async (chatId) => {
 }
 
 let weeklyReport = async (bot) => {
+    let year = dayjs().format('YYYY')
+    let month = dayjs().format('MM')
+    let day = dayjs().subtract(7, 'days').format('DD')
+    let list = await VotingModel.find({
+        "createAt": {"$gte": new Date(year, month-1, day), "$lt": Date.now()},
+        status: 0
+    })
     
+    let orderdList = orderBy(list, ['score'])
+    let top3List = orderdList.slice(Math.max(orderdList.length - 3, 1))
+    console.log(top3List)
 }
 
 module.exports = {

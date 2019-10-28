@@ -1,4 +1,4 @@
-const { reset, sendMedia, stockCheck } = require('../utils')
+const { reset, sendMedia, stockCheck, weeklyReport } = require('../utils')
 const { SubscriptionListModel, MediaModel } = require('../models')
 
 let roleCheck = (ctx, next) => {
@@ -48,5 +48,6 @@ module.exports = function (bot) {
     })
     bot.command('test', roleCheck, async (ctx) => {
         // for testing
+        weeklyReport()
     });
 };
