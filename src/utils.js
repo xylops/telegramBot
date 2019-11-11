@@ -117,11 +117,11 @@ let weeklyReport = async (bot) => {
 
     for (let subscriber of subscriptionList){
         let targetId = subscriber.subscriberId
-        console.log(targetId)
+        await bot.telegram.sendMessage(targetId, 'Weekly Report: ')
         for (var i = 0; i < top3List.length ; i++ ) {
             let { fileId, fileType, bySender, score } = top3List[i]
             let extra = {
-                caption: 'Number ' + (i +1) + ' by sender ' + bySender + ', Total Score ' + score
+                caption: 'Number ' + (i +1) + '\n Uploader:  ' + bySender + '\n Total Score ' + score
             }
             switch (fileType) {
                 case 'image':
