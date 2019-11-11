@@ -2,7 +2,7 @@ const { isEmpty } = require('lodash')
 const { SubscriptionListModel, MediaModel, VotingModel } = require('./models')
 const { Extra } = require('telegraf');
 const dayjs = require('dayjs');
-const {orderBy} = require('lodash')
+// const {orderBy} = require('lodash')
 
 
 let sendMedia = (bot, targetId, caption) => {
@@ -43,8 +43,6 @@ let sendMedia = (bot, targetId, caption) => {
                     break;
             }
 
-
-
             let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
 
             if (!isEmpty(currentVote)) {
@@ -53,8 +51,8 @@ let sendMedia = (bot, targetId, caption) => {
                 await bot.telegram.editMessageReplyMarkup(targetId, currentVote.messageId)
                 let score = Math.floor(currentVote.score / currentVote.votedGroupMember)
                 let result = isEmpty(score) ? 0 : score
-                let oldCaption = 'Total Score ' +  result
-                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption )
+                let oldCaption = 'Total Score ' + result
+                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
             }
 
             let newVote = new VotingModel({
@@ -62,6 +60,7 @@ let sendMedia = (bot, targetId, caption) => {
                 groupId: subscriberInfo._id,
                 bySender: sender,
                 fileId,
+                fileType: type,
                 status: 1
             })
             await newVote.save()
@@ -110,19 +109,40 @@ let weeklyReport = async (bot) => {
     let month = dayjs().format('MM')
     let day = dayjs().subtract(7, 'days').format('DD')
     let list = await VotingModel.find({
-        "createAt": {"$gte": new Date(year, month-1, day), "$lt": Date.now()},
-        status: 0
-    })
-    
-    let orderdList = orderBy(list, ['score'])
-    let top3List = orderdList.slice(Math.max(orderdList.length - 3, 1))
-    console.log(top3List)
+        "createAt": { "$gte": new Date(year, month - 1, day), "$lt": Date.now() },
+        status: 0,
+    }).sort({ score: -1 })
+    let top3List = list.splice(0, 3)
+    let subscriptionList = await SubscriptionListModel.find({})
+
+    for (let subscriber of subscriptionList){
+        let targetId = subscriber.subscriberId
+        console.log(targetId)
+        for (var i = 0; i < top3List.length ; i++ ) {
+            let { fileId, fileType, bySender, score } = top3List[i]
+            let extra = {
+                caption: 'Number ' + (i +1) + ' by sender ' + bySender + ', Total Score ' + score
+            }
+            switch (fileType) {
+                case 'image':
+                    await bot.telegram.sendPhoto(targetId, fileId, extra)
+                    break;
+                case 'video':
+                    await bot.telegram.sendVideo(targetId, fileId, extra)
+                    break;
+                case 'animation':
+                    await bot.telegram.sendAnimation(targetId, fileId, extra)
+                    break;
+            }
+        }
+
+    }
 }
 
 module.exports = {
     sendMedia,
     scheduleSendMedia,
-    reset, 
+    reset,
     stockCheck,
     weeklyReport
 }

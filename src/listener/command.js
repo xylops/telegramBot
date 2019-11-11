@@ -48,6 +48,6 @@ module.exports = function (bot) {
     })
     bot.command('test', roleCheck, async (ctx) => {
         // for testing
-        weeklyReport()
+        weeklyReport(bot)
     });
 };
