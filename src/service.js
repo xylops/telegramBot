@@ -29,18 +29,25 @@ let startBot = () => {
 }
 
 let startCronJob = (bot) => {
-    // let cronExp = '0 10 * * 1-5'  //weekday 10:00 am
-    let dailyCronJob = process.env.cronExp    
-    if( isEmpty(dailyCronJob) ){ return }
-    new CronJob(cronExp, () => {
+
+    let dailyCronJob1 = process.env.dailyCronJob1
+    if( isEmpty(dailyCronJob1) ){ return }
+    new CronJob(dailyCronJob1, () => {
+        scheduleSendMedia(bot)
+    }, null, true, 'Asia/Hong_Kong');
+
+    let dailyCronJob2 = process.env.dailyCronJob2
+    if( isEmpty(dailyCronJob2) ){ return }
+    new CronJob(dailyCronJob2, () => {
         scheduleSendMedia(bot)
     }, null, true, 'Asia/Hong_Kong');
 
     let weeklyCronJob = process.env.weeklyCronJob    
     if( isEmpty(weeklyCronJob) ){ return }
-    new CronJob(cronExp, () => {
+    new CronJob(weeklyCronJob, () => {
         weeklyReport(bot)
     }, null, true, 'Asia/Hong_Kong');
+
 }
 
 module.exports = {

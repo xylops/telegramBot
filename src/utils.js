@@ -121,7 +121,7 @@ let weeklyReport = async (bot) => {
         for (var i = 0; i < top3List.length ; i++ ) {
             let { fileId, fileType, bySender, score } = top3List[i]
             let extra = {
-                caption: 'Number ' + (i +1) + '\n Uploader:  ' + bySender + '\n Total Score ' + score
+                caption: 'Number ' + (i +1) + '\nUploader:  ' + bySender + '\nTotal Score ' + score
             }
             switch (fileType) {
                 case 'image':
@@ -135,8 +135,9 @@ let weeklyReport = async (bot) => {
                     break;
             }
         }
-
     }
+    await bot.telegram.sendMessage(targetId, ' Media remains:  ' + await stockCheck(targetId)) 
+    
 }
 
 module.exports = {
