@@ -23,7 +23,7 @@ module.exports = function (bot) {
         ) {
             await ctx.answerCbQuery('Vote is Closed.')
             await ctx.editMessageReplyMarkup();
-            await ctx.editMessageCaption('Total Score : ' + Math.floor(currentVoteInfo.score / currentVoteInfo.votedGroupMember.length))
+            await ctx.editMessageCaption('Average Score : ' + Math.floor(currentVoteInfo.score / currentVoteInfo.votedGroupMember.length))
             return;
         }
 
@@ -46,7 +46,7 @@ module.exports = function (bot) {
             if (res.votedGroupMember.length === totalGroupChatMember) {
                 await VotingModel.findByIdAndUpdate( currentVoteInfo._id, { status: 0 } )
                 await ctx.editMessageReplyMarkup();
-                await ctx.editMessageCaption('Total Score : ' + Math.floor(res.score / res.votedGroupMember.length))
+                await ctx.editMessageCaption('Average Score : ' + Math.floor(res.score/ res.votedGroupMember.length))
             }
         }
     })
