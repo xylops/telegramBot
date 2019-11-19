@@ -49,9 +49,9 @@ let sendMedia = (bot, targetId, caption) => {
                 // stop current vote
                 await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 } }, { new: true })
                 await bot.telegram.editMessageReplyMarkup(targetId, currentVote.messageId)
-                let score = Math.floor(currentVote.score / currentVote.votedGroupMember)
-                let result = isEmpty(score) ? 0 : score
-                let oldCaption = 'Total Score ' + result
+                let score = Math.floor( Number(currentVote.score)/ Number( currentVote.votedGroupMember.length) )
+                let result = isNaN(score) ? 0 : score
+                let oldCaption = 'Average Score ' + result + ', Voted by ' + currentVote.votedGroupMember.length
                 await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
             }
 
