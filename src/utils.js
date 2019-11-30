@@ -19,44 +19,27 @@ let sendMedia = (bot, targetId, caption) => {
             let selectedMedia = availableMediaList[randomNumber]
             let { fileId, type, sender, _id } = selectedMedia
 
-            const extra = Extra.HTML().markup((m) =>
-                m.inlineKeyboard([
-                    m.callbackButton('1', '1'),
-                    m.callbackButton('2', '2'),
-                    m.callbackButton('3', '3'),
-                    m.callbackButton('4', '4'),
-                    m.callbackButton('5', '5')
-                ])
-            )
-            extra.caption = caption
-
             let sendedMessageInfo = null
             switch (type) {
                 case 'image':
-                    sendedMessageInfo = await bot.telegram.sendPhoto(targetId, fileId, extra)
+                    sendedMessageInfo = await bot.telegram.sendPhoto(targetId, fileId, caption)
                     break;
                 case 'video':
-                    sendedMessageInfo = await bot.telegram.sendVideo(targetId, fileId, extra)
+                    sendedMessageInfo = await bot.telegram.sendVideo(targetId, fileId, caption)
                     break;
                 case 'animation':
-                    sendedMessageInfo = await bot.telegram.sendAnimation(targetId, fileId, extra)
+                    sendedMessageInfo = await bot.telegram.sendAnimation(targetId, fileId, caption)
                     break;
             }
-
-            let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
-
-            if (!isEmpty(currentVote)) {
-                // stop current vote
-                await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 } }, { new: true })
-                await bot.telegram.editMessageReplyMarkup(targetId, currentVote.messageId)
-                let score = Number(currentVote.score)
-                let result = isNaN(score) ? 0 : score
-                let oldCaption = 'Score ' + result + ', Voted by ' + currentVote.votedGroupMember.length
-                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
-            }
-
+            let duration = (process.env.voteDuration/1000)/60
+            let pollMessage = await bot.telegram.sendPoll(targetId, 
+                                        'Score (1 Worest , 5 Best)\nDuration: '+duration+' hrs', 
+                                        ['1','2','3','4','5']
+                                    )
+            
             let newVote = new VotingModel({
                 messageId: sendedMessageInfo.message_id, // messageId
+                pollMessageId: pollMessage.message_id,
                 groupId: subscriberInfo._id,
                 bySender: sender,
                 fileId,
@@ -64,8 +47,26 @@ let sendMedia = (bot, targetId, caption) => {
                 status: 1
             })
             await newVote.save()
-
             await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
+
+            setTimeout(async ()=>{
+                let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
+                let pollInfo = await bot.telegram.stopPoll(targetId, currentVote.pollMessageId)
+                let score = 0
+                let voterCount = 0
+
+                for(let item of pollInfo.options){
+                    score += Number(item.text) * Number(item.voter_count)
+                    voterCount += Number(item.voter_count)
+                }
+
+                await bot.telegram.deleteMessage(targetId, currentVote.pollMessageId)
+
+                let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
+                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
+                await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 , score } }, { new: true })
+            }, Number(process.env.voteDuration))
+
             resolve()
 
         } catch (err) {
