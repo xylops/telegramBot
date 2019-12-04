@@ -50,21 +50,25 @@ let sendMedia = (bot, targetId, caption) => {
             await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
 
             setTimeout(async ()=>{
-                let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
-                let pollInfo = await bot.telegram.stopPoll(targetId, currentVote.pollMessageId)
-                let score = 0
-                let voterCount = 0
+                try{
+                    let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
+                    let pollInfo = await bot.telegram.stopPoll(targetId, currentVote.pollMessageId)
+                    let score = 0
+                    let voterCount = 0
 
-                for(let item of pollInfo.options){
-                    score += Number(item.text) * Number(item.voter_count)
-                    voterCount += Number(item.voter_count)
+                    for(let item of pollInfo.options){
+                        score += Number(item.text) * Number(item.voter_count)
+                        voterCount += Number(item.voter_count)
+                    }
+
+                    await bot.telegram.deleteMessage(targetId, currentVote.pollMessageId)
+
+                    let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
+                    await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
+                    await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 , score } }, { new: true })
+                } catch(err){
+                    console.log(err)
                 }
-
-                await bot.telegram.deleteMessage(targetId, currentVote.pollMessageId)
-
-                let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
-                await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
-                await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 , score } }, { new: true })
             }, Number(process.env.voteDuration))
 
             resolve()
