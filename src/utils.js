@@ -51,8 +51,11 @@ let sendMedia = (bot, targetId, caption) => {
 
             setTimeout(async ()=>{
                 try{
+                    let _targetId = targetId
                     let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
-                    let pollInfo = await bot.telegram.stopPoll(targetId, currentVote.pollMessageId)
+                    console.log(_targetId)
+                    console.log(currentVote.pollMessageId)
+                    let pollInfo = await bot.telegram.stopPoll(_targetId, currentVote.pollMessageId)
                     let score = 0
                     let voterCount = 0
 
