@@ -11,6 +11,7 @@ let sendMedia = (bot, targetId, caption) => {
         try {
             let subscriberInfo = await SubscriptionListModel.findOne({ subscriberId: targetId })
             if (isEmpty(subscriberInfo)) { reject('Not Subscribe'); return; }
+            
 
             let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id } })
             if (isEmpty(availableMediaList)) { reject('Nothing available'); return; }
@@ -31,6 +32,9 @@ let sendMedia = (bot, targetId, caption) => {
                     sendedMessageInfo = await bot.telegram.sendAnimation(targetId, fileId, caption)
                     break;
             }
+
+            if (subscriberInfo.type === 'private') { resolve(); return; }
+
             let duration = (process.env.voteDuration/1000)/60
             let pollMessage = await bot.telegram.sendPoll(targetId, 
                                         'Score (1 Worest , 5 Best)\nDuration: '+duration+' hrs', 
@@ -46,16 +50,14 @@ let sendMedia = (bot, targetId, caption) => {
                 fileType: type,
                 status: 1
             })
-            await newVote.save()
+            let currentVote = await newVote.save()
             await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
-
+            
             setTimeout(async ()=>{
                 try{
                     let _targetId = targetId
-                    let currentVote = await VotingModel.findOne({ groupId: subscriberInfo._id, status: 1 });
-                    console.log(_targetId)
-                    console.log(currentVote.pollMessageId)
-                    let pollInfo = await bot.telegram.stopPoll(_targetId, currentVote.pollMessageId)
+                    let _currentVote = currentVote
+                    let pollInfo = await bot.telegram.stopPoll(_targetId, _currentVote.pollMessageId)
                     let score = 0
                     let voterCount = 0
 
@@ -64,17 +66,15 @@ let sendMedia = (bot, targetId, caption) => {
                         voterCount += Number(item.voter_count)
                     }
 
-                    await bot.telegram.deleteMessage(targetId, currentVote.pollMessageId)
+                    await bot.telegram.deleteMessage(targetId, _currentVote.pollMessageId)
 
                     let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
-                    await bot.telegram.editMessageCaption(targetId, currentVote.messageId, '', oldCaption)
-                    await VotingModel.findByIdAndUpdate(currentVote._id, { $set: { status: 0 , score } }, { new: true })
+                    await bot.telegram.editMessageCaption(targetId, _currentVote.messageId, '', oldCaption)
+                    await VotingModel.findByIdAndUpdate(_currentVote._id, { $set: { status: 0 , score } }, { new: true })
                 } catch(err){
                     console.log(err)
                 }
             }, Number(process.env.voteDuration))
-
-            resolve()
 
         } catch (err) {
             console.log(err)

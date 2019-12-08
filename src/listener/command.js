@@ -1,8 +1,9 @@
 const { reset, sendMedia, stockCheck, weeklyReport } = require('../utils')
-const { SubscriptionListModel, MediaModel } = require('../models')
+const { SubscriptionListModel, MediaModel, VotingModel } = require('../models')
 
 let roleCheck = (ctx, next) => {
-    if (ctx.message.chat.first_name !== process.env.rootAdmin) {
+    console.log(ctx.message)
+    if (ctx.message.from.first_name !== process.env.rootAdmin) {
         ctx.reply('Permission Decline')
         return;
         // next()
@@ -86,6 +87,7 @@ module.exports = function (bot) {
     });
     bot.command('test', roleCheck, async (ctx) => {
         // for testing
-        ctx.stopPoll()
+        // ctx.stopPoll()
+        await VotingModel.updateMany({status: 1}, {status: 0})
     });
 };

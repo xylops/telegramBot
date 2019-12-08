@@ -18,7 +18,6 @@ module.exports = function (bot) {
             type = 'animation'
         }
         if (isEmpty(type) || message.chat.type !== 'private') { return }
-        console.log(message.chat)
         try {
             let newMedia = new MediaModel({
                 fileId,
