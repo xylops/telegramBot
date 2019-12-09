@@ -7,18 +7,22 @@ const dayjs = require('dayjs');
 
 let sendMedia = (bot, targetId, caption) => {
     return new Promise(async (resolve, reject) => {
-
+        console.log( targetId + ' start media')
         try {
             let subscriberInfo = await SubscriptionListModel.findOne({ subscriberId: targetId })
             if (isEmpty(subscriberInfo)) { reject('Not Subscribe'); return; }
+            console.log( targetId + ' gots subscriberInfo')
             
 
             let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id } })
             if (isEmpty(availableMediaList)) { reject('Nothing available'); return; }
+            console.log( targetId + ' gots got available List')
+
 
             let randomNumber = Math.floor(Math.random() * availableMediaList.length)
             let selectedMedia = availableMediaList[randomNumber]
             let { fileId, type, sender, _id } = selectedMedia
+            console.log( targetId + ' ready to send ' + _id)
 
             let sendedMessageInfo = null
             switch (type) {
@@ -32,6 +36,7 @@ let sendMedia = (bot, targetId, caption) => {
                     sendedMessageInfo = await bot.telegram.sendAnimation(targetId, fileId, caption)
                     break;
             }
+            console.log( targetId + ' sendComplete')
 
             if (subscriberInfo.type === 'private') { resolve(); return; }
 
@@ -87,6 +92,7 @@ let scheduleSendMedia = async (bot) => {
     let subscriberList = await SubscriptionListModel.find()
     for (let item of subscriberList) {
         try {
+            console.log('send media to' + item.type + ', ' + item.subscriberId)
             await sendMedia(bot, item.subscriberId, 'Daily Photo')
         } catch (err) {
             console.log(err)
