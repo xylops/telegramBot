@@ -44,6 +44,9 @@ module.exports = function (bot) {
             await ctx.reply('Sent Photo Fail - ' + err);
         }
     });
+    bot.command('getChatId', roleCheck, async (ctx)=>{
+        await ctx.reply(ctx.message.chat.id)
+    })
     bot.command('stock_check', roleCheck, async (ctx) => {
         await ctx.reply(' Media remains:  ' + await stockCheck(ctx.message.chat.id));
     })
