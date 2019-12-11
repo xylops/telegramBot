@@ -92,13 +92,10 @@ let scheduleSendMedia = async (bot) => {
     let subscriberList = await SubscriptionListModel.find({})
     console.log(subscriberList)
 
-    // try hardCode method
-    subscriberList = [356151966, -390422664, 81237602, -1001371947446]
-
     for (let item of subscriberList) {
         try {
-            // console.log('send media to ' + item.type + ', ' + item.subscriberId)
-            await sendMedia(bot, item, 'Daily Photo')
+            console.log('send media to ' + item.type + ', ' + item.subscriberId)
+            await sendMedia(bot, item.subscriberId, 'Daily Photo')
         } catch (err) {
             console.log(err)
         }
