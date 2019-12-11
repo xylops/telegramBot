@@ -97,8 +97,8 @@ let scheduleSendMedia = async (bot) => {
 
     for (let item of subscriberList) {
         try {
-            console.log('send media to ' + item.type + ', ' + item.subscriberId)
-            await sendMedia(bot, item.subscriberId, 'Daily Photo')
+            // console.log('send media to ' + item.type + ', ' + item.subscriberId)
+            await sendMedia(bot, item, 'Daily Photo')
         } catch (err) {
             console.log(err)
         }
