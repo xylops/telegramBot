@@ -79,7 +79,8 @@ let sendMedia = (bot, targetId, caption) => {
                 } catch(err){
                     console.log(err)
                 }
-            }, Number(process.env.voteDuration))
+            }, Number(process.env.voteDuration) * 60 *1000)
+            resolve();
 
         } catch (err) {
             console.log(err)

@@ -1,9 +1,9 @@
-const { reset, sendMedia, stockCheck, weeklyReport } = require('../utils')
+const { reset, sendMedia, stockCheck, weeklyReport, scheduleSendMedia } = require('../utils')
 const { SubscriptionListModel, MediaModel, VotingModel } = require('../models')
 const _ = require('lodash')
 
 let roleCheck = (ctx, next) => {
-    if (ctx.message.from.first_name !== process.env.rootAdmin) {
+    if (ctx.message.from.id !== 356151966) {
         ctx.reply('Permission Decline')
         return;
     } else {
@@ -86,6 +86,8 @@ module.exports = function (bot) {
         //     [ { text: '1', voter_count: 0 }, { text: '2', voter_count: 0 } ],
         //     is_closed: true 
         // }
+        await VotingModel.updateMany({status: 1}, {status: 0})
+
     });
     bot.command('test', roleCheck, async (ctx) => {
         // for testing
