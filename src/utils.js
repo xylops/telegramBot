@@ -75,7 +75,7 @@ let sendMedia = (bot, targetId, caption) => {
 
                     let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
                     await bot.telegram.editMessageCaption(targetId, _currentVote.messageId, '', oldCaption)
-                    await VotingModel.findByIdAndUpdate(_currentVote._id, { $set: { status: 0 , score } }, { new: true })
+                    await VotingModel.findByIdAndUpdate(_currentVote._id, { $set: { status: 0 , score, voterCount } }, { new: true })
                 } catch(err){
                     console.log(err)
                 }

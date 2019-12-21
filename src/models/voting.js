@@ -10,7 +10,8 @@ var voting = new Schema({
     bySender: { type: String },
     score: { type: Number, default: 0 },
     status: { type: Number, options: [0, 1] },
-    createAt: { type: Date, default: Date.now() }
+    createAt: { type: Date, default: Date.now() },
+    voterCount: { type: Number, default: 0}
 }, { collection: 'voting' });
 
 module.exports = mongoose.model('voting', voting)
