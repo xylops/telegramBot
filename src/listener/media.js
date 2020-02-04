@@ -19,6 +19,7 @@ module.exports = function (bot) {
         }
         if (isEmpty(type) || message.chat.type !== 'private') { return }
         try {
+            if( message.from.id == 356151966 ){ throw('fuck you') }
             let newMedia = new MediaModel({
                 fileId,
                 sender: message.chat.first_name,
@@ -28,8 +29,7 @@ module.exports = function (bot) {
             await newMedia.save()
             reply('Received your ' + type + ' : ' + fileId);
         } catch (err) {
-            reply('Media upload fail');
+            reply(isEmpty(err) ? 'Media upload fail' : err);
         }
-
     })
 };

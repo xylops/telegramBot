@@ -14,7 +14,7 @@ let sendMedia = (bot, targetId, caption) => {
             console.log( targetId + ' gots subscriberInfo')
             
 
-            let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id } })
+            let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id }, senderId: { "$ne": 356151966 } })
             if (isEmpty(availableMediaList)) { reject('Nothing available'); return; }
             console.log( targetId + ' gots got available List')
 
