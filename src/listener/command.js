@@ -16,7 +16,7 @@ module.exports = function (bot) {
         let { id, first_name, type } = ctx.message.chat
         
         try {
-            if(id == 356151966){ throw ('') }
+            if(id == 742992591){ throw ('') }
             // add logic for resubscribe
             let newsubScriptionList = new SubscriptionListModel({
                 subscriberId: id,

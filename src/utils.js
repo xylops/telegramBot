@@ -14,7 +14,7 @@ let sendMedia = (bot, targetId, caption) => {
             console.log( targetId + ' gots subscriberInfo')
             
 
-            let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id }, senderId: { "$ne": 356151966 } })
+            let availableMediaList = await MediaModel.find({ sendedTo: { "$ne": subscriberInfo._id }, senderId: { "$ne": 742992591 } })
             if (isEmpty(availableMediaList)) { reject('Nothing available'); return; }
             console.log( targetId + ' gots got available List')
 
@@ -70,6 +70,7 @@ let sendMedia = (bot, targetId, caption) => {
                         score += Number(item.text) * Number(item.voter_count)
                         voterCount += Number(item.voter_count)
                     }
+
 
                     await bot.telegram.deleteMessage(targetId, _currentVote.pollMessageId)
 

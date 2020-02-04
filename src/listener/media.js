@@ -19,7 +19,7 @@ module.exports = function (bot) {
         }
         if (isEmpty(type) || message.chat.type !== 'private') { return }
         try {
-            if( message.from.id == 356151966 ){ throw('fuck you') }
+            if( message.from.id == 742992591 ){ throw('fuck you') }
             let newMedia = new MediaModel({
                 fileId,
                 sender: message.chat.first_name,
