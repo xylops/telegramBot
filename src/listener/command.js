@@ -94,4 +94,7 @@ module.exports = function (bot) {
         // ctx.stopPoll()
         // await VotingModel.updateMany({status: 1}, {status: 0})
     });
+    bot.command('help', roleCheck, async (ctx) => {
+        await ctx.reply('/help command is request by david');
+    });
 };
