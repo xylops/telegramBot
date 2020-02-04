@@ -49,7 +49,7 @@ module.exports = function (bot) {
     bot.command('getChatId', roleCheck, async (ctx)=>{
         await ctx.reply(ctx.message.chat.id)
     })
-    bot.command('stock_check', roleCheck, async (ctx) => {
+    bot.command('stock_check', async (ctx) => {
         await ctx.reply(' Media remains:  ' + await stockCheck(ctx.message.chat.id));
     })
     
