@@ -2,7 +2,7 @@ const Telegraf = require('telegraf')
 const mongoose = require('mongoose')
 const { isEmpty } = require('lodash')
 const CronJob = require('cron').CronJob;
-const { scheduleSendMedia, weeklyReport } = require('./utils')
+const { scheduleSendMedia, weeklyReport, stopAllPoll } = require('./utils')
 
 let connectMongoose = () => {
     mongoose.connect(
@@ -36,10 +36,22 @@ let startCronJob = (bot) => {
         scheduleSendMedia(bot)
     }, null, true, 'Asia/Hong_Kong');
 
+    let dailyCronJob1CancelVote = process.env.dailyCronJob1CancelVote
+    if( isEmpty(dailyCronJob1CancelVote) ){ return }
+    new CronJob(dailyCronJob1CancelVote, () => {
+        stopAllPoll(bot)
+    }, null, true, 'Asia/Hong_Kong');
+
     let dailyCronJob2 = process.env.dailyCronJob2
     if( isEmpty(dailyCronJob2) ){ return }
     new CronJob(dailyCronJob2, () => {
         scheduleSendMedia(bot)
+    }, null, true, 'Asia/Hong_Kong');
+
+    let dailyCronJob2CancelVote = process.env.dailyCronJob2CancelVote
+    if( isEmpty(dailyCronJob2CancelVote) ){ return }
+    new CronJob(dailyCronJob2CancelVote, () => {
+        stopAllPoll(bot)
     }, null, true, 'Asia/Hong_Kong');
 
     let weeklyCronJob = process.env.weeklyCronJob    
