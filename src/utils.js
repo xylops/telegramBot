@@ -158,7 +158,7 @@ let weeklyReport = async (bot) => {
 }
 
 let stopAllPoll = async (bot) => {
-    let currentVoteList = await VoteModel.find({status: 1})
+    let currentVoteList = await VotingModel.find({status: 1})
 
     for(let cv of currentVoteList){
         let pollInfo = await bot.telegram.stopPoll(cv.targetGroup, cv.pollMessageId)
