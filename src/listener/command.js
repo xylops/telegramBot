@@ -88,13 +88,14 @@ module.exports = function (bot) {
         //     [ { text: '1', voter_count: 0 }, { text: '2', voter_count: 0 } ],
         //     is_closed: true 
         // }
-        await VotingModel.updateMany({status: 1}, {status: 0})
+        // await VotingModel.updateMany({status: 1}, {status: 0})
 
     });
     bot.command('test', roleCheck, async (ctx) => {
         // for testing
         // ctx.stopPoll()
         // await VotingModel.updateMany({status: 1}, {status: 0})
+        console.log(123123)
     });
     bot.command('help', async (ctx) => {
         await ctx.reply('help command is request by david');

@@ -58,28 +58,6 @@ let sendMedia = (bot, targetId, caption) => {
             await newVote.save()
             await MediaModel.findByIdAndUpdate(_id, { $push: { sendedTo: subscriberInfo._id } })
             
-            // setTimeout(async ()=>{
-            //     try{
-            //         let _targetId = targetId
-            //         let _currentVote = currentVote
-            //         let pollInfo = await bot.telegram.stopPoll(_targetId, _currentVote.pollMessageId)
-            //         let score = 0
-            //         let voterCount = 0
-
-            //         for(let item of pollInfo.options){
-            //             score += Number(item.text) * Number(item.voter_count)
-            //             voterCount += Number(item.voter_count)
-            //         }
-
-            //         await bot.telegram.deleteMessage(targetId, _currentVote.pollMessageId)
-
-            //         let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
-            //         await bot.telegram.editMessageCaption(targetId, _currentVote.messageId, '', oldCaption)
-            //         await VotingModel.findByIdAndUpdate(_currentVote._id, { $set: { status: 0 , score, voterCount } }, { new: true })
-            //     } catch(err){
-            //         console.log(err)
-            //     }
-            // }, Number(process.env.voteDuration) * 60 *1000)
             resolve();
 
         } catch (err) {
@@ -129,52 +107,66 @@ let weeklyReport = async (bot) => {
         "createAt": { "$gte": new Date(year, month - 1, day), "$lt": Date.now() },
         status: 0,
     }).sort({ score: -1 })
+    // list.forEach((item, idx)=>{
+    //     list[idx].average = item.score/item.votedGroupMember.length
+    // })
+    // list.sort(()=>{
+
+    // })
     let top3List = list.splice(0, 3)
     let subscriptionList = await SubscriptionListModel.find({})
 
-    for (let subscriber of subscriptionList){
-        let targetId = subscriber.subscriberId
-        await bot.telegram.sendMessage(targetId, 'Weekly Report: ')
-        for (var i = 0; i < top3List.length ; i++ ) {
-            let { fileId, fileType, bySender, score } = top3List[i]
-            let extra = {
-                caption: 'Number ' + (i +1) + '\nUploader:  ' + bySender + '\nTotal Score ' + score
+    try{
+        for (let subscriber of subscriptionList){
+            let targetId = subscriber.subscriberId
+            await bot.telegram.sendMessage(targetId, 'Weekly Report: ')
+            for (var i = 0; i < top3List.length ; i++ ) {
+                let { fileId, fileType, bySender, score } = top3List[i]
+                let extra = {
+                    caption: 'Number ' + (i +1) + '\nUploader:  ' + bySender + '\nTotal Score ' + score
+                }
+                switch (fileType) {
+                    case 'image':
+                        await bot.telegram.sendPhoto(targetId, fileId, extra)
+                        break;
+                    case 'video':
+                        await bot.telegram.sendVideo(targetId, fileId, extra)
+                        break;
+                    case 'animation':
+                        await bot.telegram.sendAnimation(targetId, fileId, extra)
+                        break;
+                }
             }
-            switch (fileType) {
-                case 'image':
-                    await bot.telegram.sendPhoto(targetId, fileId, extra)
-                    break;
-                case 'video':
-                    await bot.telegram.sendVideo(targetId, fileId, extra)
-                    break;
-                case 'animation':
-                    await bot.telegram.sendAnimation(targetId, fileId, extra)
-                    break;
-            }
+            await bot.telegram.sendMessage(targetId, ' Media remains:  ' + await stockCheck(targetId)) 
         }
+    } catch (err) {
+        console.error(err)
     }
-    await bot.telegram.sendMessage(targetId, ' Media remains:  ' + await stockCheck(targetId)) 
     
 }
 
 let stopAllPoll = async (bot) => {
     let currentVoteList = await VotingModel.find({status: 1})
 
-    for(let cv of currentVoteList){
-        let pollInfo = await bot.telegram.stopPoll(cv.targetGroup, cv.pollMessageId)
-        let score = 0
-        let voterCount = 0
-
-        for(let item of pollInfo.options){
-            score += Number(item.text) * Number(item.voter_count)
-            voterCount += Number(item.voter_count)
+    try {
+        for(let cv of currentVoteList){
+            let pollInfo = await bot.telegram.stopPoll(cv.targetGroup, cv.pollMessageId)
+            let score = 0
+            let voterCount = 0
+    
+            for(let item of pollInfo.options){
+                score += Number(item.text) * Number(item.voter_count)
+                voterCount += Number(item.voter_count)
+            }
+    
+            await bot.telegram.deleteMessage(cv.targetGroup, cv.pollMessageId)
+    
+            let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
+            await bot.telegram.editMessageCaption(cv.targetGroup, cv.messageId, '', oldCaption)
+            await VotingModel.findByIdAndUpdate(cv._id, { $set: { status: 0 , score, voterCount } }, { new: true })
         }
-
-        await bot.telegram.deleteMessage(cv.targetGroup, cv.pollMessageId)
-
-        let oldCaption = 'Total Score: ' + score + ', Voted count: ' + voterCount 
-        await bot.telegram.editMessageCaption(cv.targetGroup, cv.messageId, '', oldCaption)
-        await VotingModel.findByIdAndUpdate(cv._id, { $set: { status: 0 , score, voterCount } }, { new: true })
+    } catch (err){
+        console.error(err)
     }
 }
 
